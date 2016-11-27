@@ -1,0 +1,58 @@
+--- # instal artifactory 
+- hosts: localhost
+  sudo: yes
+  vars:
+      artifactory_url: "https://bintray.com/jfrog/artifactory-pro/download_file?file_path=org%2Fartifactory%2Fpro%2Fjfrog-artifactory-{{artifactory_license}}%2F{{artifactory_version}}%2Fjfrog-artifactory-{{artifactory_license}}-{{artifactory_version}}.zip"
+      artifactory_file: "artifactory-{{artifactory_version}}.zip"
+      artifactory_home: "/opt/artifactory/artifactory-{{artifactory_license}}-{{artifactory_version}}"
+      artifactory_version: "4.12.1"
+      artifactory_username: "artifactory"
+      artifactory_password: "password"
+      artifactory_license: pro
+  
+  tasks:
+  - name: Install add-apt-repostory
+    become: yes
+    apt: name=software-properties-common state=latest
+
+  - name: Add Oracle Java Repository
+    become: yes
+    apt_repository: repo='ppa:webupd8team/java'
+
+  - name: Accept Java 8 License
+    become: yes
+    debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+  - name: Install Oracle Java 8
+    become: yes
+    apt: name={{item}} state=latest
+    with_items:
+      - oracle-java8-installer
+      - ca-certificates
+      - oracle-java8-set-default
+
+  - name: 'verify java -version'
+    action: shell /usr/bin/java -version
+    register: java
+  
+  - name: ensure all users can traverse /opt
+    file: path=/opt state=directory mode=0777
+
+  - name: 'create user to run artifactory'
+    user: name={{artifactory_username}} home=/opt/artifactory/ shell=/bin/bash system=true
+  
+  - name: 'download artifactory'
+    get_url: url={{artifactory_url}} dest=/tmp/{{artifactory_file}}
+
+  - name: 'unzip artifactory'
+    command: unzip -q -o  /tmp/{{artifactory_file}} -d /opt/artifactory/
+  
+  - name: 'install artifactory as a service'
+    command: "{{artifactory_home}}/bin/installService.sh {{artifactory_username}}"
+   
+  - name: 'enable artifactory service'
+    service: name=artifactory enabled=true
+
+  - name: 'restart artifactory'
+    become: yes
+    service: name=artifactory state=restarted
