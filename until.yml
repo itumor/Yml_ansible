@@ -1,0 +1,23 @@
+--- # until example
+- hosts: localhost
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    
+    - name: insatll apache2 web server
+      apt: pkg=apache2 state=latest
+      notify: resatrt apache2
+
+    - name: verify serices status
+      shell: systemctl status apache2
+      register: result
+      until: result.stdout.find("active (running)") != -1
+      retries: 5
+      delay: 5
+    - debug: var=result
+      notify: resatrt apache2
+  handlers:
+    - name: restart apache2 
+      shell: systemctl restart apache2
+    

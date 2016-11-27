@@ -1,0 +1,18 @@
+--- # when playbook example
+- hosts: localhost
+  user: timor
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  vars:
+    playbook_type: conditionalexample
+
+  tasks:
+    
+    - name: insatall apache to (Debain)
+      command: apt install apache2 -y
+      when: ansible_os_family == "Debian"
+    
+    - name: insatll apache to (Readhat)
+      command: yum -y insatll httpd
+      when: ansible_os_family == "Readhat"  

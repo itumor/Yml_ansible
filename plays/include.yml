@@ -1,0 +1,10 @@
+--- # fill include
+- hosts: localhost
+  user: timor
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+     - include: packages.yml
+     - name: verify 
+       raw: apt list installed 
