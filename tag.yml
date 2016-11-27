@@ -1,0 +1,23 @@
+--- # tag example
+- hosts: localhost
+  user: timor
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+     - name: insatll telnet adn lynx
+       apt: pkg={{ item }} state=latest
+       with_items:
+           - telnet
+           - lynx
+       tags:
+           - packages
+     - name: verify that telnet was insatlled
+       raw: dpkg --get-selections | grep telnet >> log.log
+       tags:
+         - verificathion
+     
+     - name: verify that lynx was insatlled
+       raw: dpkg --get-selections | grep lynx >> log.log
+       tags:
+         - verificathion
