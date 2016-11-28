@@ -1,0 +1,12 @@
+--- # error handling example
+- hosts: localhost
+  user: timor
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+     - name: execte a command with fail
+       command: /bin/false
+       ignore_errors: yes
+     - name: insatall telnet
+       apt: name=telnet status=latest
