@@ -1,7 +1,7 @@
 --- # loop playbook example
 - hosts: localhost
-  user: timor
-  sudo: yes
+  become_use: timor
+  become: yes
   connection: ssh
   gather_facts: no
   tasks:
